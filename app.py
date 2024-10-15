@@ -98,7 +98,7 @@ def predict():
 
 @app.route('/feedbackpositif', methods=['POST'])
 def feedbackpositif():
-    return redirect('/')
+    return "true"
 
 @app.route('/feedbacknegatif', methods=['POST'])
 def feedbacknegatif():
@@ -107,7 +107,7 @@ def feedbacknegatif():
 
     app.logger.warn(f'{tweet_text}: {prediction_cache[tweet_text]}')
 
-    return redirect('/')
+    return "true"
 
 if __name__ == '__main__':
     app.run()
