@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect
 import pickle
 import re
 from sklearn.preprocessing import StandardScaler
@@ -94,40 +94,20 @@ def predict():
     # Stocker la prédiction dans le cache pour vérification future
     prediction_cache[tweet_text] = result  # Stocker la prédiction pour ce tweet
 
-    app.logger.debug('This is a debug log message - predict')
-    app.logger.info('This is an information log message - predict')
-    app.logger.warn('This is a warning log message - predict')
-    app.logger.error('This is an error message - predict')
-    app.logger.critical('This is a critical message - predict')
-
     return jsonify({'prediction': result})
 
-@app.route('/feedback', methods=['POST'])
-def feedback():
-    # Récupérer le retour d'information de l'utilisateur
+@app.route('/feedbackpositif', methods=['POST'])
+def feedbackpositif():
+    return redirect('/')
+
+@app.route('/feedbacknegatif', methods=['POST'])
+def feedbacknegatif():
     data = request.get_json()
     tweet_text = data.get('tweet_to_predict')
-    user_feedback = data.get('feedback')  # 'positive' ou 'negative'
 
-    # Vérifier si la prédiction pour ce tweet est dans le cache
-    predicted_label = prediction_cache.get(tweet_text)
+    app.logger.warn(f'{tweet_text}: {prediction_cache[tweet_text]}')
 
-    if predicted_label is not None:
-        # Interprétation du feedback utilisateur
-        if user_feedback == "positive":
-            print(f"Correct prediction")
-        elif user_feedback == "negative":
-            print(f"Incorrect prediction")
-    else:
-        print(f'Erreur: aucune prédiction trouvée pour le tweet="{tweet_text}"')
-
-    app.logger.debug('This is a debug log message - feedback')
-    app.logger.info('This is an information log message - feedback')
-    app.logger.warn('This is a warning log message - feedback')
-    app.logger.error('This is an error message - feedback')
-    app.logger.critical('This is a critical message - feedback')
-
-    return jsonify({'status': 'success', 'message': 'Feedback enregistré'})
+    return redirect('/')
 
 if __name__ == '__main__':
     app.run()

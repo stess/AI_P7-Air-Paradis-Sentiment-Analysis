@@ -100,7 +100,7 @@
         }
 
         .validate-button {
-            background-color: #6c9a6d; /* Vert correspondant à la palette */
+            background-color: #6c9a6d;
             color: white;
             border: none;
             padding: 10px;
@@ -117,7 +117,7 @@
         }
 
         .invalidate-button {
-            background-color: #d9534f; /* Rouge correspondant à la palette */
+            background-color: #d9534f; 
             color: white;
             border: none;
             padding: 10px;
@@ -136,6 +136,37 @@
         .validate-button i, .invalidate-button i {
             margin-right: 5px;
         }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #8a8e75; /* Couleur verte de fond */
+            color: white; /* Couleur du texte */
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #8a8e75;
+            display: none;
+            font-size: 1rem;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Ajout d'une ombre */
+            width: 300px; 
+            text-align: center;
+        }
+
+        .notification .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            margin-left: 15px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+        }
+
 
         /* Mobile Styles */
         @media (max-width: 768px) {
@@ -200,18 +231,33 @@
 
         async function sendFeedback(isPositive) {
             const tweetText = document.querySelector('.feedback-buttons').dataset.tweet;
-            const feedbackType = isPositive ? 'positive' : 'negative';
+            const feedbackRoute = isPositive ? '/feedbackpositif' : '/feedbacknegatif';
 
             // Envoi des feedbacks à l'API Flask
-            await fetch('/feedback', {
+            await fetch(feedbackRoute, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ tweet_to_predict: tweetText, feedback: feedbackType })
+                body: JSON.stringify({ tweet_to_predict: tweetText })
             });
 
-            alert("Merci pour votre retour !");
+            // Afficher la notification de remerciement
+            showNotification();
+        }
+
+        function showNotification() {
+            const notificationDiv = document.getElementById('notification');
+            notificationDiv.style.display = 'block';
+
+            // Fermer automatiquement la notification après 5 secondes
+            setTimeout(() => {
+                notificationDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function closeNotification() {
+            document.getElementById('notification').style.display = 'none';
         }
 
         document.querySelector('textarea[name="tweet_to_predict"]').addEventListener('input', () => {
@@ -225,6 +271,10 @@
 </head>
 
 <body>
+    <div class="notification" id="notification">
+        Merci pour votre réponse !
+        <button class="close-btn" onclick="closeNotification()">✖</button>
+    </div>
     <div class="container">
         <div class="left-section">
             <h1>PRÉDICTION<br>DE<br>TWEETS</h1>
