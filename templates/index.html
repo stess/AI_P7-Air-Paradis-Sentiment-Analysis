@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prédiction de Tweets</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400&family=Roboto:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #d0d2c8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            width: 70%;
+        }
+
+        .left-section {
+            flex: 1;
+            text-align: left;
+            padding-left: 50px;
+        }
+
+        .left-section h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #55534e;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .right-section {
+            flex: 1;
+            background-color: #ede7de;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .right-section h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #55534e;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #8a8e75;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Lato', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #7a7d6b;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #55534e;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .feedback-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .validate-button {
+            background-color: #6c9a6d; /* Vert correspondant à la palette */
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .validate-button:hover {
+            background-color: #5c895e;
+        }
+
+        .invalidate-button {
+            background-color: #d9534f; /* Rouge correspondant à la palette */
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .invalidate-button:hover {
+            background-color: #c9302c;
+        }
+
+        .validate-button i, .invalidate-button i {
+            margin-right: 5px;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                width: 90%;
+                text-align: center;
+            }
+
+            .left-section {
+                padding-left: 0;
+                margin-bottom: 20px;
+            }
+
+            .left-section h1 {
+                font-size: 2.5rem;
+                text-align: center;
+            }
+
+            .right-section {
+                padding: 20px;
+                text-align: center;
+                width: 100%;
+            }
+
+            .feedback-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+    </style>
+    <script>
+        async function predictSentiment(event) {
+            event.preventDefault(); // Empêche le rechargement de la page lors de la soumission du formulaire
+    
+            const tweetText = document.querySelector('textarea[name="tweet_to_predict"]').value;
+            const resultDiv = document.getElementById('result');
+    
+            // Réinitialiser le résultat avant de soumettre
+            resultDiv.textContent = ''; 
+    
+            // Envoi des données à l'API Flask
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tweet_to_predict: tweetText })
+            });
+    
+            const data = await response.json();
+    
+            // Affichage du résultat
+            resultDiv.textContent = `Résultat : ${data.prediction}`;
+            
+            // Affichage des boutons de feedback
+            document.querySelector('.feedback-buttons').style.display = 'flex';
+
+            // Sauvegarde le tweet pour le feedback ultérieur
+            document.querySelector('.feedback-buttons').dataset.tweet = tweetText;
+        }
+
+        async function sendFeedback(isPositive) {
+            const tweetText = document.querySelector('.feedback-buttons').dataset.tweet;
+            const feedbackType = isPositive ? 'positive' : 'negative';
+
+            // Envoi des feedbacks à l'API Flask
+            await fetch('/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tweet_to_predict: tweetText, feedback: feedbackType })
+            });
+
+            alert("Merci pour votre retour !");
+        }
+
+        document.querySelector('textarea[name="tweet_to_predict"]').addEventListener('input', () => {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = ''; // Réinitialiser le résultat dès que l'utilisateur commence à taper
+
+            // Masquer les boutons de feedback
+            document.querySelector('.feedback-buttons').style.display = 'none';
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left-section">
+            <h1>PRÉDICTION<br>DE<br>TWEETS</h1>
+        </div>
+        <div class="right-section">
+            <h2>Texte du tweet</h2>
+            <form onsubmit="predictSentiment(event)">
+                <textarea name="tweet_to_predict"></textarea>
+                <button type="submit">Prédire le sentiment</button>
+            </form>
+            <div id="result"></div>
+            <div class="feedback-buttons" style="display: none;" data-tweet="">
+                <button class="validate-button" onclick="sendFeedback(true)"><i>✔</i> Bonne prédiction</button>
+                <button class="invalidate-button" onclick="sendFeedback(false)"><i>✘</i> Mauvaise prédiction</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
