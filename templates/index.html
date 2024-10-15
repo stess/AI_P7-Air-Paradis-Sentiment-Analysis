@@ -240,24 +240,15 @@
 
             document.getElementById("tweet").value = "";
 
-            resetAll();
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = ''; 
+          
+            document.querySelector('.feedback-buttons').style.display = 'none';
 
             // Fermer automatiquement la notification après 5 secondes
             setTimeout(() => {
                 notificationDiv.style.display = 'none';
             }, 2000);
-        }
-
-        const textArea = document.getElementById('tweet');
-        textArea.addEventListener('selectionchange', () => {
-            resetAll();
-        })
-
-        function resetAll() {
-            const resultDiv = document.getElementById('result');
-            resultDiv.textContent = ''; 
-          
-            document.querySelector('.feedback-buttons').style.display = 'none';
         }
 
         function closeNotification() {
