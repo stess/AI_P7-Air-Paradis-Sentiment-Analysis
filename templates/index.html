@@ -238,23 +238,33 @@
             const notificationDiv = document.getElementById('notification');
             notificationDiv.style.display = 'block';
 
+            document.getElementById("tweet").value = "";
+
+            resetAll();
+
             // Fermer automatiquement la notification après 5 secondes
             setTimeout(() => {
                 notificationDiv.style.display = 'none';
             }, 2000);
         }
 
+        const textArea = document.getElementById('tweet');
+        textArea.addEventListener('selectionchange', () => {
+            resetAll();
+        })
+
+        function resetAll() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = ''; 
+          
+            document.querySelector('.feedback-buttons').style.display = 'none';
+        }
+
         function closeNotification() {
             document.getElementById('notification').style.display = 'none';
         }
 
-        document.querySelector('textarea[name="tweet_to_predict"]').addEventListener('input', () => {
-            const resultDiv = document.getElementById('result');
-            resultDiv.textContent = ''; // Réinitialiser le résultat dès que l'utilisateur commence à taper
-
-            // Masquer les boutons de feedback
-            document.querySelector('.feedback-buttons').style.display = 'none';
-        });
+        
     </script>
 </head>
 
@@ -269,7 +279,7 @@
         <div class="right-section">
             <h2>Texte du tweet</h2>
             <form onsubmit="predictSentiment(event)">
-                <textarea name="tweet_to_predict"></textarea>
+                <textarea name="tweet_to_predict" id="tweet"></textarea>
                 <button type="submit">Prédire le sentiment</button>
             </form>
             <div id="result"></div>
