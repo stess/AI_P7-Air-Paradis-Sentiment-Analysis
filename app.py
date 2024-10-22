@@ -105,7 +105,12 @@ def feedbacknegatif():
     data = request.get_json()
     tweet_text = data.get('tweet_to_predict')
 
-    app.logger.warning(f'{tweet_text}: {prediction_cache[tweet_text]}')
+    #app.logger.error(f'{tweet_text}: {prediction_cache[tweet_text]}')
+    app.logger.debug('This is a debug log message')
+    app.logger.info('This is an information log message')
+    app.logger.warn('This is a warning log message')
+    app.logger.error('This is an error message')
+    app.logger.critical('This is a critical message')
 
     return "true"
 
